@@ -25,10 +25,6 @@ import createEmotionCache from '../src/createEmotionCache';
 import { AppGlobalStyles } from '../src/layouts/AppGlobalStyles';
 import { LanguageProvider } from '../src/libs/LanguageProvider';
 
-const SwitchModal = dynamic(() =>
-  import('src/components/transactions/Switch/SwitchModal').then((module) => module.SwitchModal)
-);
-
 const BridgeModal = dynamic(() =>
   import('src/components/transactions/Bridge/BridgeModal').then((module) => module.BridgeModal)
 );
@@ -153,7 +149,6 @@ export default function MyApp(props: MyAppProps) {
                           <SwapModal />
                           <FaucetModal />
                           <TransactionEventHandler />
-                          <SwitchModal />
                           <StakingMigrateModal />
                           <BridgeModal />
                         </GasStationProvider>
