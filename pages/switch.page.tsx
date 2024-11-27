@@ -1,19 +1,19 @@
-import { AaveV3Ethereum } from '@bgd-labs/aave-address-book';
-import { Box, CircularProgress } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { Trans } from '@lingui/macro';
+import { Box, CircularProgress, Paper, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { ConnectWalletPaper } from 'src/components/ConnectWalletPaper';
+import { ContentContainer } from 'src/components/ContentContainer';
+import { TopInfoPanel } from 'src/components/TopInfoPanel/TopInfoPanel';
 import { supportedNetworksWithEnabledMarket } from 'src/components/transactions/Switch/common';
-import { SwitchModalContent } from 'src/components/transactions/Switch/SwitchModalContent';
+import { NetworkSelector } from 'src/components/transactions/Switch/NetworkSelector';
 import { TokenInfoWithBalance, useTokensBalance } from 'src/hooks/generic/useTokensBalance';
 import { MainLayout } from 'src/layouts/MainLayout';
 import { useWeb3Context } from 'src/libs/hooks/useWeb3Context';
+import { SwitchPageWrapper } from 'src/modules/switch/SwitchPageWrapper';
 import { useRootStore } from 'src/store/root';
 import { CustomMarket, marketsData } from 'src/ui-config/marketsConfig';
-import { queryKeysFactory } from 'src/ui-config/queries';
-import { TOKEN_LIST, TokenInfo } from 'src/ui-config/TokenList';
+import { TOKEN_LIST } from 'src/ui-config/TokenList';
 import { getNetworkConfig } from 'src/utils/marketsAndNetworksConfig';
-import invariant from 'tiny-invariant';
 
 const defaultNetwork = marketsData[CustomMarket.proto_mainnet_v3];
 
@@ -89,60 +89,16 @@ const SwitchModalContentWrapper = ({
   chainId,
   setSelectedChainId,
 }: SwitchModalContentWrapperProps) => {
+  const theme = useTheme();
+  const upToLG = useMediaQuery(theme.breakpoints.up('lg'));
+  const downToSM = useMediaQuery(theme.breakpoints.down('sm'));
+  const downToXSM = useMediaQuery(theme.breakpoints.down('xsm'));
+
   const filteredTokens = useMemo(() => getFilteredTokens(chainId), [chainId]);
 
+  console.log('chainId', chainId);
+
   const { data: baseTokenList } = useTokensBalance(filteredTokens, chainId, user);
-
-  const { defaultInputToken, defaultOutputToken } = useMemo(() => {
-    if (baseTokenList) {
-      const defaultInputToken =
-        baseTokenList.find((token) => token.extensions?.isNative) || baseTokenList[0];
-      const defaultOutputToken =
-        baseTokenList.find(
-          (token) =>
-            (token.address === AaveV3Ethereum.ASSETS.GHO.UNDERLYING || token.symbol == 'AAVE') &&
-            token.address !== defaultInputToken.address
-        ) || baseTokenList.find((token) => token.address !== defaultInputToken.address);
-      invariant(
-        defaultInputToken && defaultOutputToken,
-        'token list should have at least 2 assets'
-      );
-      return { defaultInputToken, defaultOutputToken };
-    }
-    return { defaultInputToken: filteredTokens[0], defaultOutputToken: filteredTokens[1] };
-  }, [baseTokenList, filteredTokens]);
-
-  const queryClient = useQueryClient();
-
-  const addNewToken = async (token: TokenInfoWithBalance) => {
-    queryClient.setQueryData<TokenInfoWithBalance[]>(
-      queryKeysFactory.tokensBalance(filteredTokens, chainId, user),
-      (oldData) => {
-        if (oldData)
-          return [...oldData, token].sort((a, b) => Number(b.balance) - Number(a.balance));
-        return [token];
-      }
-    );
-    const customTokens = localStorage.getItem('customTokens');
-    const newTokenInfo = {
-      address: token.address,
-      symbol: token.symbol,
-      decimals: token.decimals,
-      chainId: token.chainId,
-      name: token.name,
-      logoURI: token.logoURI,
-      extensions: {
-        isUserCustom: true,
-      },
-    };
-    if (customTokens) {
-      const parsedCustomTokens: TokenInfo[] = JSON.parse(customTokens);
-      parsedCustomTokens.push(newTokenInfo);
-      localStorage.setItem('customTokens', JSON.stringify(parsedCustomTokens));
-    } else {
-      localStorage.setItem('customTokens', JSON.stringify([newTokenInfo]));
-    }
-  };
 
   if (!baseTokenList) {
     return (
@@ -153,16 +109,49 @@ const SwitchModalContentWrapper = ({
   }
 
   return (
-    <SwitchModalContent
-      key={chainId}
-      selectedChainId={chainId}
-      setSelectedChainId={setSelectedChainId}
-      supportedNetworks={supportedNetworksWithEnabledMarket}
-      defaultInputToken={defaultInputToken}
-      defaultOutputToken={defaultOutputToken}
-      tokens={baseTokenList}
-      addNewToken={addNewToken}
-    />
+    <>
+      <TopInfoPanel
+        titleComponent={
+          <Box mb={4}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+              {/* <img src={`/aave-logo-purple.svg`} width="64px" height="64px" alt="" /> */}
+              <Typography
+                variant={downToXSM ? 'h2' : upToLG ? 'display1' : 'h1'}
+                sx={{ ml: 2, mr: 3 }}
+              >
+                <Trans>Switch</Trans>
+              </Typography>
+              <NetworkSelector
+                networks={supportedNetworksWithEnabledMarket}
+                selectedNetwork={chainId}
+                setSelectedNetwork={setSelectedChainId}
+              />
+            </Box>
+          </Box>
+        }
+      >
+        <Box>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat
+        </Box>
+      </TopInfoPanel>
+      <ContentContainer>
+        <Paper
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            p: 4,
+            flex: 1,
+          }}
+        >
+          <SwitchPageWrapper />
+        </Paper>
+      </ContentContainer>
+    </>
   );
 };
 

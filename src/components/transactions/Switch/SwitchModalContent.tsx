@@ -208,14 +208,13 @@ export const SwitchModalContent = ({
     }
   };
 
-  const handleSelectedNetworkChange = (value: number) => {
-    setTxError(undefined);
-    setSelectedChainId(value);
-  };
+  // const handleSelectedNetworkChange = (value: number) => {
+  //   setTxError(undefined);
+  //   setSelectedChainId(value);
+  // };
 
   return (
     <>
-      <TxModalTitle title="Switch tokens" />
       {isWrongNetwork.isWrongNetwork && !readOnlyModeAddress && (
         <ChangeNetworkWarning
           networkName={selectedNetworkConfig.name}
@@ -226,11 +225,11 @@ export const SwitchModalContent = ({
         />
       )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <NetworkSelector
+        {/* <NetworkSelector
           networks={supportedNetworks}
           selectedNetwork={selectedChainId}
           setSelectedNetwork={handleSelectedNetworkChange}
-        />
+        /> */}
         <SwitchSlippageSelector
           slippageValidation={slippageValidation}
           slippage={slippage}

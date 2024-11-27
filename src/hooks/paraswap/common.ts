@@ -12,10 +12,14 @@ import {
 } from '@bgd-labs/aave-address-book';
 import {
   BuildTxFunctions,
+  constructBuildLimitOrder,
   constructBuildTx,
+  constructEthersContractCaller,
   constructFetchFetcher,
   constructGetRate,
   constructPartialSDK,
+  constructPostLimitOrder,
+  constructSignLimitOrder,
   ContractMethod,
   OptimalRate,
   SwapSide,
@@ -24,6 +28,8 @@ import {
 import { GetRateFunctions, RateOptions } from '@paraswap/sdk/dist/methods/swap/rates';
 
 import { ComputedReserveData } from '../app-data-provider/useAppDataProvider';
+import { JsonRpcProvider, Provider } from '@ethersproject/providers';
+import { ethers } from 'ethers';
 
 export type UseSwapProps = {
   chainId: ChainId;
@@ -97,6 +103,29 @@ const paraswapNetworks: ParaswapChainMap = {
   [ChainId.base]: { paraswap: ParaSwap(ChainId.base), feeTarget: AaveV3Base.COLLECTOR },
   [ChainId.bnb]: { paraswap: ParaSwap(ChainId.bnb), feeTarget: AaveV3BNB.COLLECTOR },
   [ChainId.xdai]: { paraswap: ParaSwap(ChainId.xdai), feeTarget: AaveV3Gnosis.COLLECTOR },
+};
+
+export const getParaswapLimitOrder = (
+  chainId: ChainId,
+  account: string,
+  provider: JsonRpcProvider
+) => {
+  // TODO: validate chainId is supported for Limit Orders. This is different than the swap chains.
+  const fetcher = constructFetchFetcher(fetch);
+  const contractCaller = constructEthersContractCaller(
+    {
+      ethersProviderOrSigner: provider.getSigner(),
+      EthersContract: ethers.Contract,
+    },
+    account
+  );
+
+  return constructPartialSDK(
+    { chainId, fetcher, contractCaller },
+    constructBuildLimitOrder,
+    constructSignLimitOrder,
+    constructPostLimitOrder
+  );
 };
 
 export const getParaswap = (chainId: ChainId) => {
