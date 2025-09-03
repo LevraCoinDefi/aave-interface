@@ -63,11 +63,11 @@ export const marketsData: {
     v3: true,
     chainId: ChainId.avalanche,
     enabledFeatures: {
-      liquiditySwap: true,
-      incentives: true,
-      collateralRepay: true,
-      debtSwitch: true,
-      withdrawAndSwitch: true,
+      liquiditySwap: false,
+      incentives: false,
+      collateralRepay: false,
+      debtSwitch: false,
+      withdrawAndSwitch: false,
       switch: true,
     },
     // TODO
