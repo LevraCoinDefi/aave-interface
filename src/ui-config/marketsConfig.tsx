@@ -1,6 +1,7 @@
 import { ChainId } from '@aave/contract-helpers';
-import { AaveV3Avalanche } from '@bgd-labs/aave-address-book';
 import { ReactNode } from 'react';
+
+import { AaveV3Avalanche } from './levra-address-book/AaveV3Avalanche';
 
 // Enable for premissioned market
 // import { PermissionView } from 'src/components/transactions/FlowCommons/PermissionView';
