@@ -5,6 +5,7 @@ import {
   UiPoolDataProvider,
   UserReserveDataHumanized,
 } from '@aave/contract-helpers';
+import { HashZero } from '@ethersproject/constants';
 import { Provider } from '@ethersproject/providers';
 import { CustomMarket, MarketDataType } from 'src/ui-config/marketsConfig';
 import { ENABLE_TESTNET } from 'src/utils/marketsAndNetworksConfig';
@@ -36,8 +37,9 @@ export class UiPoolService {
 
   private useLegacyUiPoolDataProvider(marketData: MarketDataType) {
     if (
-      marketData.market === CustomMarket.proto_base_sepolia_v3 ||
-      marketData.market === CustomMarket.proto_sepolia_horizon_v3
+      // marketData.market === CustomMarket.proto_base_sepolia_v3 ||
+      // marketData.market === CustomMarket.proto_sepolia_horizon_v3 ||
+      marketData.market === CustomMarket.proto_avalanche_v3
     ) {
       return false;
     }
@@ -69,9 +71,24 @@ export class UiPoolService {
   }
 
   async getEModesHumanized(marketData: MarketDataType): Promise<EmodeDataHumanized[]> {
-    const uiPoolDataProvider = await this.getUiPoolDataService(marketData);
-    return uiPoolDataProvider.getEModesHumanized({
-      lendingPoolAddressProvider: marketData.addresses.LENDING_POOL_ADDRESS_PROVIDER,
-    });
+    void marketData;
+    // We do not use EModes for any reserves, so just return params deployed
+    return [
+      {
+        id: 1,
+        eMode: {
+          ltv: '9700',
+          liquidationThreshold: '9750',
+          liquidationBonus: '10100',
+          label: 'Stablecoins',
+          collateralBitmap: HashZero,
+          borrowableBitmap: HashZero,
+        },
+      },
+    ];
+    // const uiPoolDataProvider = await this.getUiPoolDataService(marketData);
+    // return uiPoolDataProvider.getEModesHumanized({
+    //   lendingPoolAddressProvider: marketData.addresses.LENDING_POOL_ADDRESS_PROVIDER,
+    // });
   }
 }
